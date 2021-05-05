@@ -1,19 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package trabalhopraticoii;
 
 /**
  *
- * @author arthu
+ * @author Arthur Passos
  */
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class ListaEncadeada<Key, Value> {
-    private int n; // Quantidade de pares(valor-chave)
+    private int numPares; // Quantidade de pares(valor-chave)
     private Node primeiro; // Primeiro nó da lista
 
     //Estrutura de um nó da lista encadeada.
@@ -32,7 +27,7 @@ public class ListaEncadeada<Key, Value> {
     public ListaEncadeada(){}
 
     public int getSize(){
-        return n;
+        return this.numPares;
     }
 
     public Boolean isEmpty(){
@@ -40,10 +35,10 @@ public class ListaEncadeada<Key, Value> {
     }
 
     public boolean contains(Key key){
-        return get(key) != null;
+        return buscaValor(key) != null;
     }
 
-    public Value get(Key key){
+    public Value buscaValor(Key key){
         for(Node i = primeiro; i != null; i = i.prox){
             if(key.equals(i.key))
                 return i.value;
@@ -64,8 +59,9 @@ public class ListaEncadeada<Key, Value> {
             }
         }
         primeiro = new Node(key, val, primeiro);
-        n++;
+        this.numPares++;
     }
+    
     public void delete(Key key){
         primeiro = delete(primeiro, key);
     }
@@ -75,7 +71,7 @@ public class ListaEncadeada<Key, Value> {
             return null;
         }
         if (key.equals(x.key)){
-            n--;
+            this.numPares--;
             return x.prox;
         }
         x.prox = delete(x.prox, key);
@@ -88,5 +84,13 @@ public class ListaEncadeada<Key, Value> {
             ((LinkedList<Key>) queue).add(x.key);
         }
         return queue;
+    }
+    
+    public int quantidadeKeys(){
+        Queue<Key> queue = new LinkedList<Key>();
+        for(Node x = primeiro; x != null; x = x.prox){
+            ((LinkedList<Key>) queue).add(x.key);
+        }
+        return queue.size();
     }
 }

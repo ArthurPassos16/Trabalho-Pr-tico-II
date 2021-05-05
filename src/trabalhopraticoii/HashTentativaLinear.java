@@ -7,229 +7,197 @@ package trabalhopraticoii;
 
 /**
  *
- * @author arthu
+ * @author Arthur Passos
  */
 public class HashTentativaLinear<Key, Value> {
-	private int N; // numero de pares de chaves na tabela
-	private int M = 16; // Tamanho da tabela hash com tratamento linear
-	private Key[] keys; // the keys
-	private Value[] vals; // the values
-	private boolean[] stats;
+    private int numPares; // numero de pares de chaves na tabela
+    private int tamHashLinear = 16; // Tamanho da tabela hash com tratamento linear
+    private Key[] keys; // the keys
+    private Value[] values; // the values
+    private boolean[] estados; // true = ALOCADO, false = REMOVIDO
 
-	//stats
-	// true = ALOCADO
-	// false = REMOVIDO
+    //Cria um vetor de chaves, valores e estados dessas chaves, podendo elas estar ocupadas ou livres;
+    //Utiliza o tamanho padrão 16
+    public HashTentativaLinear() {
+        keys = (Key[]) new Object[tamHashLinear];
+        values = (Value[]) new Object[tamHashLinear];
+        estados = new boolean[tamHashLinear];
+    }
+    //Cria um vetor de chaves, valores e estados dessas chaves, podendo elas estar ocupadas ou livres;
+    //Utiliza um tamanho variavel passado como parametro
+    public HashTentativaLinear(int cap) {
+        keys = (Key[]) new Object[cap];
+        values = (Value[]) new Object[cap];
+        estados = new boolean[cap];
+        tamHashLinear = cap;
+    }
 
-	//Cria um vetor de chaves, valores e estados dessas chaves, podendo elas estar ocupadas ou livres;
-	//Utiliza o tamanho padrão 16
-	public HashTentativaLinear() {
-		keys = (Key[]) new Object[M];
-		vals = (Value[]) new Object[M];
-		stats = new boolean[M];
-	}
+    //Função que faz o hash Auxiliar em caso de colisão
+    private int hashAux(Key key){
+        return 1 + (key.hashCode() & 0x7fffffff) % tamHashLinear;
+    }
 
-	//O mesmo de acima, porém utiliza um tamanho variavel passado por parametro
-	public HashTentativaLinear(int cap) {
-		keys = (Key[]) new Object[cap];
-		vals = (Value[]) new Object[cap];
-		stats = new boolean[cap];
-		M = cap;
-	}
-	
-	/**
-	 * Calcula o Hash
-	 * @param key
-	 * @return
-	 */
+    //Retorna o hash entre 0 e M-1.
+    private int hash(Key key){
+        return (key.hashCode() & 0x7fffffff) % tamHashLinear; 
+    }
 
+    //Redimenciona a tabela para um novo tamanho (de acordo com a quantidade de chaves), recolocando os elementos na nova tabela
+    private void resize(int cap) {
+        HashTentativaLinear<Key, Value> hash;
+        boolean st[] = new boolean[cap];
+        hash = new HashTentativaLinear<Key, Value> (cap);
 
-	//Função que faz o hash Auxiliar em caso de colisão
-	private int hashAux(Key key){
-		return 1 + (key.hashCode() & 0x7fffffff) % M;
-	}
-
-	//Retorna o hash entre 0 e M-1.
-	private int hash(Key key)
-	{
-		return (key.hashCode() & 0x7fffffff) % M; 
-	}
-	
-	/**
-	 * Redimensiona a tabela de acordo com a quantidade de chaves.
-	 * @param cap
-	 */
-	//Redimenciona a tabela para um novo tamanho, recolocando os elementos na nova tabela
-	private void resize(int cap) {
-		
-		HashTentativaLinear<Key, Value> t;
-		boolean st[] = new boolean[cap];
-		t = new HashTentativaLinear<Key, Value> (cap);
-		
-		for (int i = 0; i < keys.length; i++) {
+        for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null) {
-                t.put(keys[i], vals[i]);
-                st[i] = stats[i];
+                hash.put(keys[i], values[i]);
+                st[i] = estados[i];
             }
-		}
-		stats = st;
-		keys = t.keys;
-		vals = t.vals;
+        }
+        estados = st;
+        keys = hash.keys;
+        values = hash.values;
 
-		M = t.M;
-		
-	}
+        tamHashLinear = hash.tamHashLinear;
+    }
 
-	 //Verifica se uma chave esta contida na tabela.
-	 public boolean contains(Key key) {
-	        if (key == null) {
-	            throw new IllegalArgumentException("Argument to contains() cannot be null");
-	        }
+     //Verifica se uma chave esta contida na tabela.
+     public boolean contains(Key key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Argument to contains() cannot be null");
+        }
 
-	        return get(key) != null;
-	 }
-	
-	/**
-	 * Insere um novo objeto no Hash 
-	 * @param key
-	 * @param val
-	 */
-	public void putDoubleHash(Key key, Value val) {
-		int i = hash(key);
-		int k = hashAux(key);
-    	if (N >= M/2)
-			resize(2*M); // double M
-		//i é a hash inicial
-		//Em caso de colisão a proxima posição testa é a (i + k) % M onde k é o valor da hash auxiliar
+        return get(key) != null;
+     }
 
-        for (; keys[i] != null; i = (i + k) % M) {
+    //Insere um novo objeto no Hash 
+    public void putDoubleHash(Key key, Value val) {
+        int i,j;
+
+        if (numPares >= tamHashLinear/2) resize(2*tamHashLinear); 
+        // double M
+        //i é a hash inicial
+        //Em caso de colisão a proxima posição testa é a (i + k) % M onde k é o valor da hash auxiliar
+
+        for (i = hash(key), j = hashAux(key); keys[i] != null; i = (i + j) % tamHashLinear) {
             if (keys[i].equals(key)) {            // Caso a chave já esteja na tabela o valor é sobrescrito
-                vals[i] = val;
+                values[i] = val;
                 return;
             }
         }
         keys[i] = key;
-		vals[i] = val;
-		stats[i] = true;
-		//Definimos o estado da chave para true, que significa alocado.
-		N++;
-	}
+        values[i] = val;
+        estados[i] = true;
+        //Definimos o estado da chave para true, que significa alocado.
+        numPares++;
+    }
 
+    //Insere um elemento na tabela utilizando uma hash simples e tentativa linear. Se a posição que a hash cair estiver ocupada
+    //Passa para posição i+1 %M, utilizando o resto para o valor não sair do tamanho da tabela;
+    //Se a chave  já existir na tabela o valor é sobrescrito.
+    public void put(Key key, Value val) {
+        int i;
+        if (numPares >= tamHashLinear/2)  resize(2*tamHashLinear); // double M 
 
-	//Insere um elemtno na tabela utilizando uma hash simples e tentativa linear. Se a posição que a hash cair estiver ocupada
-	//Passa para posição i+1 %M, utilizando o resto para o valor não sair do tamanho da tabela;
-	//Se a chave  já existir na tabela o valor é sobrescrito.
-
-	public void put(Key key, Value val) {
-		int i;
-		if (N >= M/2) 
-			resize(2*M); // double M 
-
-		for (i = hash(key); keys[i] != null; i = (1 + i) % M)
-			if (keys[i].equals(key)) {
-				vals[i] = val;
-				return; 
-				}
-		//Achou uma posição livre
-
-		keys[i] = key;
-		vals[i] = val;
-		stats[i] = true;
-		//Definimos o estado da chave para true, que significa alocado.
-		N++;
-	}
-	
-	/**
-	 * Remove um objeto do Hash
-	 * @param key
-	 */
-
-	//Executa a remoção sem deletar o elemento da memória
-	//Caso o elemento esteja contido na tabela, calculcamos a sua posição nos pares de chaves e alteramos seus estado para false, ou seja Livre.
-	public void deleteNoRemove(Key key){
-		if (key == null)
-			throw new IllegalArgumentException("Argument to delete() cannot be null");
-
-		if (!contains(key))
-			return;
-
-		int i = hash(key);
-		int k = hashAux(key);
-
-		while (!key.equals(keys[i]))
-			i = (i + k) % M;
-
-		stats[i] = false;
-
-		i = (i + k) % M;
-
-		while (keys[i] != null){
-			Key keyToRedo = keys[i];
-			Value valToRedo = vals[i];
-			stats[i] = false;
-			N--;
-			put(keyToRedo, valToRedo);
-			i = (i + 1) % M;
-		}
-
-		//decrementamos o contador de pares.
-		N--;
-		//Verificamos se existe necessidade de redimensionameto após a remoção da chave.
-		if (N > 0 && N == M/8)
-			resize(M/2);
-	}
-
-	//Faz a remoção fisica do elemento atribuindo null para chave e valor
-	public void delete(Key key)
-	{
-		if (key == null) 
-			throw new IllegalArgumentException("Argument to delete() cannot be null");
-		
-		if (!contains(key))
-			return;
-			
-		int i = hash(key);
-		while (!key.equals(keys[i]))
-			i = (i + 1) % M;
-		
-		keys[i] = null;
-		vals[i] = null;
-		i = (i + 1) % M;
-		
-		while (keys[i] != null){
-			Key keyToRedo = keys[i];
-			Value valToRedo = vals[i];
-			keys[i] = null;
-			vals[i] = null;
-			N--;
-			put(keyToRedo, valToRedo);
-			i = (i + 1) % M;
-		}
-		N--;
-		if (N > 0 && N == M/8) 
-			resize(M/2);
-	}
-	
-	/**
-	 * Busca um objeto no Hash
-	 * @param key
-	 * @return
-	 */
-
-	public Value getHashDuplo(Key key) {
-		int i = hash(key);
-		int k = hash(key);
-		for (; keys[i] != null; i = (i + k) % M)
-			if (keys[i].equals(key))
-				return vals[i];
-		return null;
-	}
-
-	//Percorre a tabela de chaves utilizando tentativa linaar e retorna o valor correspondente a uma chave
-	public Value get(Key key) {
-		for (int i = hash(key); keys[i] != null; i = (i + 1) % M)
-			if (keys[i].equals(key)) {
-                return vals[i];
+        for (i = hash(key); keys[i] != null; i = (1 + i) % tamHashLinear)
+            if (keys[i].equals(key)) {
+                values[i] = val;
+                return; 
             }
-		return null;
-	}
+        //Achou uma posição livre
+
+        keys[i] = key;
+        values[i] = val;
+        estados[i] = true;
+        //Definimos o estado da chave para true, que significa alocado.
+        numPares++;
+    }
+
+    //Executa a remoção sem deletar o elemento da memória
+    //Caso o elemento esteja contido na tabela, calculcamos a sua posição nos pares de chaves e alteramos seus estado para false, ou seja Livre.
+    public void deleteNoRemove(Key key){
+        if (key == null)
+            throw new IllegalArgumentException("Argument to delete() cannot be null");
+
+        if (!contains(key))
+            return;
+
+        int i = hash(key);
+        int k = hashAux(key);
+
+        while (!key.equals(keys[i]))
+            i = (i + k) % tamHashLinear;
+
+        estados[i] = false;
+
+        i = (i + k) % tamHashLinear;
+
+        while (keys[i] != null){
+            Key keyToRedo = keys[i];
+            Value valToRedo = values[i];
+            estados[i] = false;
+            numPares--;
+            put(keyToRedo, valToRedo);
+            i = (i + 1) % tamHashLinear;
+        }
+
+        //decrementamos o contador de pares.
+        numPares--;
+        //Verificamos se existe necessidade de redimensionameto após a remoção da chave.
+        if (numPares > 0 && numPares == tamHashLinear/8)
+            resize(tamHashLinear/2);
+    }
+
+    //Faz a remoção fisica do elemento atribuindo null para chave e valor
+    public void delete(Key key){
+        if (key == null) 
+            throw new IllegalArgumentException("Argument to delete() cannot be null");
+
+        if (!contains(key))
+            return;
+
+        int i = hash(key);
+        while (!key.equals(keys[i]))
+            i = (i + 1) % tamHashLinear;
+
+        keys[i] = null;
+        values[i] = null;
+        i = (i + 1) % tamHashLinear;
+
+        while (keys[i] != null){
+            Key keyToRedo = keys[i];
+            Value valToRedo = values[i];
+            keys[i] = null;
+            values[i] = null;
+            numPares--;
+            put(keyToRedo, valToRedo);
+            i = (i + 1) % tamHashLinear;
+        }
+        numPares--;
+        if (numPares > 0 && numPares == tamHashLinear/8) 
+                resize(tamHashLinear/2);
+    }
+
+    //Busca um objeto no Hash
+    public Value getHashDuplo(Key key) {
+        int i, j;
+        for (i = hash(key), j = hash(key); keys[i] != null; i = (i + j) % tamHashLinear)
+                if (keys[i].equals(key))
+                        return values[i];
+        return null;
+    }
+
+    //Percorre a tabela de chaves utilizando tentativa linaar e retorna o valor correspondente a uma chave
+    public Value get(Key key) {
+        for (int i = hash(key); keys[i] != null; i = (i + 1) % tamHashLinear)
+            if (keys[i].equals(key)) {
+                return values[i];
+            }
+        return null;
+    }
+    
+    public int quantidadeKeys(){
+        return this.numPares;
+    }
+        
 }
