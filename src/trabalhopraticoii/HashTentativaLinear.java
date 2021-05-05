@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package trabalhopraticoii;
 
 /**
@@ -37,7 +32,7 @@ public class HashTentativaLinear<Key, Value> {
         return 1 + (key.hashCode() & 0x7fffffff) % tamHashLinear;
     }
 
-    //Retorna o hash entre 0 e M-1.
+    //Retorna o hash entre 0 e tamHashLinear-1.
     private int hash(Key key){
         return (key.hashCode() & 0x7fffffff) % tamHashLinear; 
     }
@@ -61,7 +56,7 @@ public class HashTentativaLinear<Key, Value> {
         tamHashLinear = hash.tamHashLinear;
     }
 
-     //Verifica se uma chave esta contida na tabela.
+     ////Verifica se está na tabela hash
      public boolean contains(Key key) {
         if (key == null) {
             throw new IllegalArgumentException("Argument to contains() cannot be null");
@@ -71,13 +66,13 @@ public class HashTentativaLinear<Key, Value> {
      }
 
     //Insere um novo objeto no Hash 
-    public void putDoubleHash(Key key, Value val) {
+    public void inserirHashDuplo(Key key, Value val) {
         int i,j;
 
         if (numPares >= tamHashLinear/2) resize(2*tamHashLinear); 
-        // double M
+        // dobra tamHashLinear
         //i é a hash inicial
-        //Em caso de colisão a proxima posição testa é a (i + k) % M onde k é o valor da hash auxiliar
+        //Em caso de colisão a proxima posição testa é a (i + j) % tamHashLinear onde j é o valor da hash auxiliar
 
         for (i = hash(key), j = hashAux(key); keys[i] != null; i = (i + j) % tamHashLinear) {
             if (keys[i].equals(key)) {            // Caso a chave já esteja na tabela o valor é sobrescrito
@@ -85,6 +80,7 @@ public class HashTentativaLinear<Key, Value> {
                 return;
             }
         }
+        
         keys[i] = key;
         values[i] = val;
         estados[i] = true;
@@ -93,7 +89,7 @@ public class HashTentativaLinear<Key, Value> {
     }
 
     //Insere um elemento na tabela utilizando uma hash simples e tentativa linear. Se a posição que a hash cair estiver ocupada
-    //Passa para posição i+1 %M, utilizando o resto para o valor não sair do tamanho da tabela;
+    //Passa para posição i+1 % tamHashLinear, utilizando o resto para o valor não sair do tamanho da tabela;
     //Se a chave  já existir na tabela o valor é sobrescrito.
     public void put(Key key, Value val) {
         int i;
@@ -175,15 +171,15 @@ public class HashTentativaLinear<Key, Value> {
         }
         numPares--;
         if (numPares > 0 && numPares == tamHashLinear/8) 
-                resize(tamHashLinear/2);
+            resize(tamHashLinear/2);
     }
 
     //Busca um objeto no Hash
     public Value getHashDuplo(Key key) {
         int i, j;
         for (i = hash(key), j = hash(key); keys[i] != null; i = (i + j) % tamHashLinear)
-                if (keys[i].equals(key))
-                        return values[i];
+            if (keys[i].equals(key))
+                return values[i];
         return null;
     }
 

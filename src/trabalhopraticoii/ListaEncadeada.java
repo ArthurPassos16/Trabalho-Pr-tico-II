@@ -8,10 +8,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class ListaEncadeada<Key, Value> {
-    private int numPares; // Quantidade de pares(valor-chave)
-    private Node primeiro; // Primeiro nó da lista
+    private int numPares; // quantidade de valor-chave
+    private Node primeiro; // raiz da lista
 
-    //Estrutura de um nó da lista encadeada.
     private class Node{
         private Key key;
         private Value value;
@@ -46,7 +45,7 @@ public class ListaEncadeada<Key, Value> {
         return null;
     }
 
-    public void put(Key key, Value val){
+    public void inserir(Key key, Value val){
         if (val == null){
             delete(key);
             return;

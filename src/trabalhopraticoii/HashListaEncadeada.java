@@ -32,7 +32,7 @@ public class HashListaEncadeada<Key, Value>{
         return 1 + ((key.hashCode() & 0x7fffffff) % tamHashLinear-1);
     }
 
-    //Retorna o hash entre 0 e M-1.
+    //Retorna o hash entre 0 e tamHashLinear-1.
     private int hash(Key key){
         return (key.hashCode() & 0x7fffffff) % tamHashLinear;
     }
@@ -43,7 +43,7 @@ public class HashListaEncadeada<Key, Value>{
         temp = new HashListaEncadeada<Key, Value>(nos);
         for(int i = 0;i < tamHashLinear; i++){
             for(Key key : lista[i].keys()){
-                temp.put(key,lista[i].buscaValor(key));
+                temp.inserir(key,lista[i].buscaValor(key));
             }
         }
         this.tamHashLinear = temp.tamHashLinear;
@@ -58,20 +58,22 @@ public class HashListaEncadeada<Key, Value>{
     public boolean isEmpty(){
         return getSize() == 0;
     }
-
+    
+    //Verifica se está na tabela hash
     public boolean contains(Key key){
         return get(key) != null;
     }
-
+    
+    //retorna valor associado a chave
     public Value get(Key key){
         int i = hash(key);
         return lista[i].buscaValor(key);
     }
 
-    //Chama o método put da lista encadeada que irá inserir o chave valor em um nó da lista encadeada, assim quando houver colisão
-    //Será criado mais um nó nessa posição.
+    //Chama o método inserir da lista encadeada que irá inserir a chave e o valor em um nó da lista encadeada, 
+    //assim quando houver colisão será criado mais um nó nessa posição.
     //Pois cada posição da nossa tabela corresponde a uma lista Encadeada.
-    public void put(Key key, Value val) {
+    public void inserir(Key key, Value val) {
        if (val == null){
            delete(key);
            return;
@@ -86,7 +88,7 @@ public class HashListaEncadeada<Key, Value>{
            numPares++;
        }
        
-       lista[i].put(key, val);
+       lista[i].inserir(key, val);
     }
 
 

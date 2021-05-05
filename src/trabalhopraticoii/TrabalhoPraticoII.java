@@ -129,7 +129,7 @@ public class TrabalhoPraticoII {
                     while (input.hasNext() && count<tam) {//lendo atributos do arquivo
                         String chave = input.next();
                         double valor = Double.parseDouble(input.next());
-                        tab.putDoubleHash(chave, valor);
+                        tab.inserirHashDuplo(chave, valor);
                         count++;
                     }
                     
@@ -158,7 +158,7 @@ public class TrabalhoPraticoII {
                     while (input.hasNext() && count<tam) {//lendo atributos do arquivo
                         String chave = input.next();
                         double valor = Double.parseDouble(input.next());
-                        list.put(chave, valor);
+                        list.inserir(chave, valor);
                         count++;
                     }
                     

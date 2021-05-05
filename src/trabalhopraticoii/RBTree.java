@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package trabalhopraticoii;
 
 /**
@@ -49,10 +44,6 @@ public class RBTree<Key extends Comparable<Key>, Value>{
         raiz = nulo;
     }
 
-    //Rotação a Esquerda em um nó 'no'
-    //O filho noDireitaeito de 'no' sobe
-    // e 'no'	 se torna filho dele
-    // como um filho a Esquerda
     private void rotacaoEsquerda(Node node) {
         Node novaRaiz = node.noDireita;
         node.noDireita = novaRaiz.noEsquerda;
@@ -75,8 +66,6 @@ public class RBTree<Key extends Comparable<Key>, Value>{
         node.pai = novaRaiz;
     }
 
-    //O mesmo do acima, porém invertendo Esquerda por Direita
-    // Assim as trocas são feitas a Direita
     private void rotacaoDireita(Node node) { 
         Node novaRaiz = node.noEsquerda;
         node.noEsquerda = novaRaiz.noDireita;
@@ -140,12 +129,12 @@ public class RBTree<Key extends Comparable<Key>, Value>{
                     node.pai.pai.cor = RED;
                     node = node.pai.pai;
                 }else{
-                    if(node == node.pai.noDireita){ // caso 2: x tem um tio preto e x é filho direito
+                    if(node == node.pai.noDireita){ // caso 2: node tem um tio preto e node é filho direito
                         node = node.pai;
                         rotacaoEsquerda(node);   
                     }
 
-                    node.pai.cor = BLACK; // caso 3: 
+                    node.pai.cor = BLACK; // caso 3: node tem um tio preto e node é filho esquerdo
                     node.pai.pai.cor = RED;
                     rotacaoDireita(node.pai.pai);
                 }
